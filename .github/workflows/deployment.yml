@@ -1,0 +1,50 @@
+name: Terraform deployment
+
+on:
+  push:
+  branches:
+  - main
+
+  inputs:
+    terraform_working_directory:
+      description: 'Directory containing Terraform files'
+      type: string
+      default: 'terraform'
+      required: true
+
+jobs:
+  deploy:
+    name: Terraform
+    runs-on:
+      ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Terraform setup
+        id: setup
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform init
+        id: init
+        runs: terraform init
+        working-directory: "./{{ inputs.terraform_working_directory }}"
+
+      - name: Terraform plan
+        id: plan
+        runs: terraform plan -input=false
+        working-directory: "./{{ inputs.terraform_working_directory }}"
+
+      - name: terraform apply
+        id: apply
+        needs: plan
+        runs: terraform apply -input=false -auto-approve
+        working-directory: "./{{ inputs.terraform_working_directory }}"
+
+      - name: potential success
+        id: status
+        run: echo "Infrastructure has deployed."

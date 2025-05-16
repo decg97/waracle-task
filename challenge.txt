@@ -1,0 +1,11 @@
+#cloud-congfig
+package_update: true
+packages:
+  - nginx
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <html><body><h1>Hello from Azure!</h1></body></html>
+runcmd:
+  - systemctl start nginx
+  - systemctl enable nginx
